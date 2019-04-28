@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const chromiumPath = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
 
 runBot()
 
@@ -8,7 +9,7 @@ function runBot() {
     const results = [];
 
     // Load Chromium Browser - for background working use headless: true
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: false, executablePath: chromiumPath });
     
     // Open a new Page
     const page = await browser.newPage();    
@@ -33,7 +34,15 @@ function runBot() {
       const regex = /(?<=\|).+?(?=\|)/gi
       const res = regex.exec(rawData)
       if (res != null) {
-        results.push(res[0]);
+
+        // Check if the message is desired
+        if (isDesired(res[0])) {
+          console.log("Desired Data")
+          // Convert to JS Object and Push to results array
+          results.push(convertoObject(res[0]));
+        } else {
+          console.log("Not Desired Data")
+        }
       }
       
       // Save into JSON file
@@ -43,4 +52,25 @@ function runBot() {
     // Goto stats page
     await page.goto('https://www.bet365.com/#/IP/', { timeout: 0, waitUntil: 'load' });
   });
+}
+
+function isDesired(val) {
+    const desiredKeywords = ["CT","CL","EV","MA","PA"];
+    for (let i = 0; i < desiredKeywords.length; i++) {
+      if (val.startsWith(desiredKeywords[i])) {
+        return true;
+      }
+    }
+    return false;
+}
+
+function convertoObject(val) {
+  let obj = {};
+  let raw = val.split(';');
+  obj.type = raw[0];
+  for (let a = 1; a < raw.length - 1; a++) {
+    const c = raw[a].split('=');
+    obj[c[0]] = c[1]
+  }
+  return obj;
 }
