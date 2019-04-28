@@ -36,19 +36,20 @@ function runBot() {
       const rawData = response.payloadData;
 
       // Get required data from raw Data
-      const regex = /(?<=\|).+?(?=\|)/gi
-      const res = regex.exec(rawData)
-      if (res != null) {
+      // const regex = /(?<=\|).+?(?=\|)/gi
+      // const res = regex.exec(rawData)
+      // if (res != null) {
 
         // Check if the message is desired
-        if (isDesired(res[0])) {
+        // if (isDesired(res[0])) {
 
           // Convert to JS Object and Save to Current Date folder
           count++;
           const filePath = `${dtString}/${count.toString()}.json`
-          fs.writeFileSync(filePath, JSON.stringify(convertoObject(res[0])));
-        }
-      }
+          // fs.writeFileSync(filePath, JSON.stringify(convertoObject(res[0])));
+          fs.writeFileSync(filePath, rawData);
+        // }
+      // }
       
       // Save into JSON file
       // fs.writeFileSync('results.json', JSON.stringify(results));
@@ -60,7 +61,7 @@ function runBot() {
 }
 
 function isDesired(val) {
-    const desiredKeywords = ["CT","CL","EV","MA","PA", "OV"];
+    const desiredKeywords = ["CT","CL","EV","MA","PA"];
     for (let i = 0; i < desiredKeywords.length; i++) {
       if (val.startsWith(desiredKeywords[i])) {
         return true;
