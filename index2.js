@@ -34,12 +34,45 @@ function runBot() {
     const client = page._client;
     client.on('Network.webSocketFrameReceived', ({requestId, timestamp, response}) => {
       const rawData = response.payloadData;
-      count++;
-      const filePath = `${dtString}/${count.toString()}.txt`
-      fs.writeFileSync(filePath, rawData);
+
+      // Get required data from raw Data
+      const regex = /(?<=\|).+?(?=\|)/gi
+      const res = regex.exec(rawData)
+      if (res != null) {
+
+        // Check if the message is desired
+        if (isDesired(res[0])) {
+
+          // Convert to JS Object and Save to Current Date folder
+          count++;
+          const filePath = `${dtString}/${count.toString()}.json`
+          fs.writeFileSync(filePath, JSON.stringify(convertoObject(res[0])));
+        }
+      }      
     })
 
     // Goto stats page
     await page.goto('https://www.bet365.com/#/IP/', { timeout: 0, waitUntil: 'load' });
   });
+}
+
+function isDesired(val) {
+    const desiredKeywords = ["CT","CL","EV","MA","PA"];
+    for (let i = 0; i < desiredKeywords.length; i++) {
+      if (val.startsWith(desiredKeywords[i])) {
+        return true;
+      }
+    }
+    return false;
+}
+
+function convertoObject(val) {
+  let obj = {};
+  let raw = val.split(';');
+  obj.type = raw[0];
+  for (let a = 1; a < raw.length - 1; a++) {
+    const c = raw[a].split('=');
+    obj[c[0]] = c[1]
+  }
+  return obj;
 }
