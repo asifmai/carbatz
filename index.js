@@ -1,6 +1,5 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const chromiumPath = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
 
 runBot()
 
@@ -14,7 +13,7 @@ function runBot() {
     fs.mkdirSync(dtString)
 
     // Load Chromium Browser - for background working use headless: true
-    const browser = await puppeteer.launch({ headless: false, executablePath: chromiumPath });
+    const browser = await puppeteer.launch({ headless: false });
     
     // Open a new Page
     const page = await browser.newPage();    
@@ -34,9 +33,10 @@ function runBot() {
     const client = page._client;
     client.on('Network.webSocketFrameReceived', ({requestId, timestamp, response}) => {
       const rawData = response.payloadData;
+      const data = rawData.replace(/[]/g, '');
       count++;
       const filePath = `${dtString}/${count.toString()}.txt`
-      fs.writeFileSync(filePath, rawData);
+      fs.writeFileSync(filePath, data);
     })
 
     // Goto stats page
