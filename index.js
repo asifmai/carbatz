@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const chromiumPath = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
 
 runBot()
 
@@ -13,7 +14,7 @@ function runBot() {
     fs.mkdirSync(dtString)
 
     // Load Chromium Browser - for background working use headless: true
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: false, executablePath: chromiumPath });
     
     // Open a new Page
     const page = await browser.newPage();    
