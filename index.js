@@ -6,7 +6,12 @@ runBot()
 
 function runBot() {
   return new Promise(async (resolve, reject) => {
-    const results = [];
+
+    // Create a new Folder with name as current date and time
+    let count = 0;
+    const dt = new Date();
+    const dtString = `${dt.getDate()}${dt.getMonth()}${dt.getFullYear()}${dt.getHours()}${dt.getMinutes()}${dt.getSeconds()}`;
+    fs.mkdirSync(dtString)
 
     // Load Chromium Browser - for background working use headless: true
     const browser = await puppeteer.launch({ headless: false, executablePath: chromiumPath });
@@ -37,16 +42,16 @@ function runBot() {
 
         // Check if the message is desired
         if (isDesired(res[0])) {
-          console.log("Desired Data")
-          // Convert to JS Object and Push to results array
-          results.push(convertoObject(res[0]));
-        } else {
-          console.log("Not Desired Data")
+
+          // Convert to JS Object and Save to Current Date folder
+          count++;
+          const filePath = `${dtString}/${count.toString()}.json`
+          fs.writeFileSync(filePath, JSON.stringify(convertoObject(res[0])));
         }
       }
       
       // Save into JSON file
-      fs.writeFileSync('results.json', JSON.stringify(results));
+      // fs.writeFileSync('results.json', JSON.stringify(results));
     })
 
     // Goto stats page
@@ -55,7 +60,7 @@ function runBot() {
 }
 
 function isDesired(val) {
-    const desiredKeywords = ["CT","CL","EV","MA","PA"];
+    const desiredKeywords = ["CT","CL","EV","MA","PA", "OV"];
     for (let i = 0; i < desiredKeywords.length; i++) {
       if (val.startsWith(desiredKeywords[i])) {
         return true;
