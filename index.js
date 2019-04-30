@@ -14,7 +14,10 @@ function runBot() {
     fs.mkdirSync(dtString)
 
     // Load Chromium Browser - for background working use headless: true
-    const browser = await puppeteer.launch({ headless: false, executablePath: chromiumPath });
+    const browser = await puppeteer.launch({ 
+      headless: false, 
+      executablePath: chromiumPath 
+    });
     
     // Open a new Page
     const page = await browser.newPage();    
@@ -40,7 +43,28 @@ function runBot() {
       fs.writeFileSync(filePath, data);
     })
 
+    await page.waitForSelector('a[title="Sports Betting"]')
+    
+    await Promise.all([
+      page.waitForNavigation({
+        timeout: 0,
+        waitUntil: 'load',
+      }),
+      page.click('a[title="Sports Betting"]'),
+    ]);
+
+    await page.waitForSelector('a.hm-BigButton');
+    const navbarItems = await page.$$('a.hm-BigButton');
+
+    await Promise.all([
+      page.waitForNavigation({
+        timeout: 0,
+        waitUntil: 'load',
+      }),
+      navbarItems[1].click('a[title="Sports Betting"]'),
+    ]);
+
     // Goto stats page
-    await page.goto('https://www.bet365.com/#/IP/', { timeout: 0, waitUntil: 'load' });
+    // await page.goto('https://www.bet365.com/#/IP/', { timeout: 0, waitUntil: 'load' });
   });
 }
